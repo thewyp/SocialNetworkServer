@@ -1,0 +1,1 @@
+rootProject.name = "com.thewyp.ktor.social.network"
