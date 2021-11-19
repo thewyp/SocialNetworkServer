@@ -1,23 +1,14 @@
 package com.thewyp.plugins
 
+import com.thewyp.data.repository.user.UserRepository
+import com.thewyp.routes.createUserRoute
 import io.ktor.routing.*
-import io.ktor.http.*
-import io.ktor.content.*
-import io.ktor.http.content.*
 import io.ktor.application.*
-import io.ktor.response.*
-import io.ktor.request.*
+import org.koin.ktor.ext.inject
 
 fun Application.configureRouting() {
-    
-
+    val userRepository: UserRepository by inject()
     routing {
-        get("/") {
-                call.respondText("Hello World!")
-            }
-        // Static plugin. Try to access `/static/index.html`
-        static("/static") {
-            resources("static")
-        }
+        createUserRoute(userRepository)
     }
 }
