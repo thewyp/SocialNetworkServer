@@ -3,8 +3,10 @@ package com.thewyp.routes
 import com.thewyp.data.repository.user.UserRepository
 import com.thewyp.data.models.User
 import com.thewyp.data.requests.CreateAccountRequest
+import com.thewyp.data.requests.LoginRequest
 import com.thewyp.data.responses.BasicApiResponse
 import com.thewyp.util.ApiResponseMessages.FIELDS_BLANK
+import com.thewyp.util.ApiResponseMessages.INVALID_CREDENTIALS
 import com.thewyp.util.ApiResponseMessages.USER_ALREADY_EXISTS
 import io.ktor.application.*
 import io.ktor.http.*
@@ -52,6 +54,41 @@ fun Route.createUserRoute(userRepository: UserRepository) {
             )
             call.respond(
                 BasicApiResponse(successful = true)
+            )
+        }
+    }
+}
+
+fun Route.loginUser(userRepository: UserRepository) {
+    post("/api/user/login") {
+        val request = call.receiveOrNull<LoginRequest>() ?: kotlin.run {
+            call.respond(HttpStatusCode.BadRequest)
+            return@post
+        }
+
+        if (request.email.isBlank() || request.password.isBlank()) {
+            call.respond(HttpStatusCode.BadRequest)
+            return@post
+        }
+
+        val isCorrectPassword = userRepository.doesPasswordForUserMatch(
+            email = request.email,
+            enteredPassword = request.password
+        )
+        if(isCorrectPassword) {
+            call.respond(
+                HttpStatusCode.OK,
+                BasicApiResponse(
+                    successful = true
+                )
+            )
+        } else {
+            call.respond(
+                HttpStatusCode.OK,
+                BasicApiResponse(
+                    successful = false,
+                    message = INVALID_CREDENTIALS
+                )
             )
         }
     }
