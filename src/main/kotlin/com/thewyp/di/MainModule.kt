@@ -1,5 +1,7 @@
 package com.thewyp.di
 
+import com.thewyp.data.repository.follow.FollowRepository
+import com.thewyp.data.repository.follow.FollowRepositoryImpl
 import com.thewyp.data.repository.user.UserRepository
 import com.thewyp.data.repository.user.UserRepositoryImpl
 import com.thewyp.util.Constants
@@ -14,5 +16,8 @@ val mainModule = module {
     }
     single<UserRepository> {
         UserRepositoryImpl(get())
+    }
+    single<FollowRepository> {
+        FollowRepositoryImpl(get())
     }
 }

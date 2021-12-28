@@ -43,7 +43,7 @@ dependencies {
     // Test dependencies
 
     // Gson
-    testImplementation("com.google.code.gson:gson:2.8.8")
+    testImplementation("com.google.code.gson:gson:2.8.9")
     // Koin
     testImplementation("io.insert-koin:koin-test:$koin_version")
     // Ktor Test
