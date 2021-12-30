@@ -21,4 +21,8 @@ class UserRepositoryImpl(
     override suspend fun getUserByEmail(email: String): User? {
         return users.findOne(User::email eq email)
     }
+
+    override suspend fun doesEmailBelongToUserId(email: String, userId: String): Boolean {
+        return users.findOneById(userId)?.email == email
+    }
 }

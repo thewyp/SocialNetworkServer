@@ -15,4 +15,6 @@ interface UserRepository {
         return user?.password == enteredPassword
     }
 
+    suspend fun doesEmailBelongToUserId(email: String, userId: String): Boolean
+
 }
