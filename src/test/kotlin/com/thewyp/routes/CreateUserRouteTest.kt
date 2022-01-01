@@ -14,7 +14,6 @@ import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.routing.*
 import io.ktor.server.testing.*
-import io.netty.handler.codec.http.HttpHeaders.addHeader
 import kotlinx.coroutines.runBlocking
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -48,7 +47,7 @@ internal class CreateUserRouteTest : KoinTest {
         withTestApplication(
             moduleFunction = {
                 install(Routing) {
-                    createUserRoute(userRepository)
+                    createUser(userRepository)
                 }
             }
         ) {
@@ -68,7 +67,7 @@ internal class CreateUserRouteTest : KoinTest {
             moduleFunction = {
                 configureSerialization()
                 install(Routing) {
-                    createUserRoute(userRepository)
+                    createUser(userRepository)
                 }
             }
         ) {
@@ -114,7 +113,7 @@ internal class CreateUserRouteTest : KoinTest {
             moduleFunction = {
                 configureSerialization()
                 install(Routing) {
-                    createUserRoute(userRepository)
+                    createUser(userRepository)
                 }
             }
         ) {
@@ -146,7 +145,7 @@ internal class CreateUserRouteTest : KoinTest {
             moduleFunction = {
                 configureSerialization()
                 install(Routing) {
-                    createUserRoute(userRepository)
+                    createUser(userRepository)
                 }
             }
         ) {

@@ -5,6 +5,7 @@ import io.ktor.auth.jwt.*
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.application.*
+import java.util.*
 
 fun Application.configureSecurity() {
 
@@ -26,5 +27,22 @@ fun Application.configureSecurity() {
             }
         }
     }
-
 }
+
+fun generateToken(
+    email: String,
+    jwtIssuer: String,
+    jwtAudience: String,
+    jwtSecret: String,
+): String {
+    val expiresIn = 1000L * 60L * 60L * 24L * 365L
+    return JWT.create()
+        .withClaim("email", email)
+        .withIssuer(jwtIssuer)
+        .withExpiresAt(Date(System.currentTimeMillis() + expiresIn))
+        .withAudience(jwtAudience)
+        .sign(Algorithm.HMAC256(jwtSecret))
+}
+
+val JWTPrincipal.email: String?
+    get() = getClaim("email", String::class)

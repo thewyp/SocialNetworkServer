@@ -1,14 +1,16 @@
 package com.thewyp.di
 
+import com.thewyp.data.repository.comment.CommentRepository
+import com.thewyp.data.repository.comment.CommentRepositoryImpl
 import com.thewyp.data.repository.follow.FollowRepository
 import com.thewyp.data.repository.follow.FollowRepositoryImpl
+import com.thewyp.data.repository.likes.LikeRepository
+import com.thewyp.data.repository.likes.LikeRepositoryImpl
 import com.thewyp.data.repository.post.PostRepository
 import com.thewyp.data.repository.post.PostRepositoryImpl
 import com.thewyp.data.repository.user.UserRepository
 import com.thewyp.data.repository.user.UserRepositoryImpl
-import com.thewyp.service.FollowService
-import com.thewyp.service.PostService
-import com.thewyp.service.UserService
+import com.thewyp.service.*
 import com.thewyp.util.Constants
 import org.koin.dsl.module
 import org.litote.kmongo.coroutine.CoroutineDatabase
@@ -39,4 +41,17 @@ val mainModule = module {
     single {
         PostService(get())
     }
+    single<LikeRepository> {
+        LikeRepositoryImpl(get())
+    }
+    single {
+        LikeService(get())
+    }
+    single<CommentRepository> {
+        CommentRepositoryImpl(get())
+    }
+    single {
+        CommentService(get())
+    }
+
 }

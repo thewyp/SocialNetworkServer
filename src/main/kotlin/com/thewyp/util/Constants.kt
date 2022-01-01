@@ -8,4 +8,5 @@ object Constants {
     const val FIELDS_BLANK = "The fields my not be empty."
 
     const val DEFAULT_POST_PAGE_SIZE = 15
+    const val MAX_COMMENT_LENGTH = 2000
 }
