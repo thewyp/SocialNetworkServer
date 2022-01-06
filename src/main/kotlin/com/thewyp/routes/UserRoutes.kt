@@ -1,15 +1,19 @@
 package com.thewyp.routes
 
+import com.thewyp.data.models.User
 import com.thewyp.data.requests.CreateAccountRequest
 import com.thewyp.data.requests.LoginRequest
 import com.thewyp.data.responses.AuthResponse
 import com.thewyp.data.responses.BasicApiResponse
 import com.thewyp.plugins.generateToken
+import com.thewyp.plugins.userId
 import com.thewyp.service.UserService
 import com.thewyp.util.ApiResponseMessages.FIELDS_BLANK
 import com.thewyp.util.ApiResponseMessages.INVALID_CREDENTIALS
 import com.thewyp.util.ApiResponseMessages.USER_ALREADY_EXISTS
+import com.thewyp.util.QueryParams
 import io.ktor.application.*
+import io.ktor.auth.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
@@ -92,6 +96,26 @@ fun Route.loginUser(
                     successful = false,
                     message = INVALID_CREDENTIALS
                 )
+            )
+        }
+    }
+}
+
+fun Route.searchUser(userService: UserService) {
+    authenticate {
+        get("/api/user/search") {
+            val query = call.parameters[QueryParams.PARAM_QUERY]
+            if(query == null || query.isBlank()) {
+                call.respond(
+                    HttpStatusCode.OK,
+                    listOf<User>()
+                )
+                return@get
+            }
+            val searchResults = userService.searchForUsers(query, call.userId)
+            call.respond(
+                HttpStatusCode.OK,
+                searchResults
             )
         }
     }

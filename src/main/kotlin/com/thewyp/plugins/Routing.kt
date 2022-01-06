@@ -30,6 +30,7 @@ fun Application.configureRouting() {
         // Following routes
         followUser(followService, activityService)
         unfollowUser(followService)
+        searchUser(userService)
 
         // Post routes
         createPost(postService)
