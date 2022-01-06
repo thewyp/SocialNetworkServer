@@ -4,6 +4,7 @@ import com.thewyp.data.requests.CreateCommentRequest
 import com.thewyp.data.requests.DeleteCommentRequest
 import com.thewyp.data.responses.BasicApiResponse
 import com.thewyp.plugins.userId
+import com.thewyp.service.ActivityService
 import com.thewyp.service.CommentService
 import com.thewyp.service.LikeService
 import com.thewyp.service.UserService
@@ -17,7 +18,8 @@ import io.ktor.response.*
 import io.ktor.routing.*
 
 fun Route.createComment(
-    commentService: CommentService
+    commentService: CommentService,
+    activityService: ActivityService
 ) {
     authenticate {
         post("/api/comment/create") {
@@ -26,7 +28,8 @@ fun Route.createComment(
                 return@post
             }
             println("createComment:userId=${call.userId}")
-            when(commentService.createComment(request, call.userId)) {
+            val userId = call.userId
+            when(commentService.createComment(request, userId)) {
                 is CommentService.ValidationEvent.ErrorFieldEmpty -> {
                     call.respond(
                         HttpStatusCode.OK,
@@ -46,6 +49,10 @@ fun Route.createComment(
                     )
                 }
                 is CommentService.ValidationEvent.Success -> {
+                    activityService.addCommentActivity(
+                        byUserId = userId,
+                        postId = request.postId,
+                    )
                     call.respond(
                         HttpStatusCode.OK,
                         BasicApiResponse(

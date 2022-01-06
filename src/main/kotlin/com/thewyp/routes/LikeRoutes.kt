@@ -2,7 +2,9 @@ package com.thewyp.routes
 
 import com.thewyp.data.requests.LikeUpdateRequest
 import com.thewyp.data.responses.BasicApiResponse
+import com.thewyp.data.util.ParentType
 import com.thewyp.plugins.userId
+import com.thewyp.service.ActivityService
 import com.thewyp.service.LikeService
 import com.thewyp.service.UserService
 import com.thewyp.util.ApiResponseMessages
@@ -15,7 +17,8 @@ import io.ktor.response.*
 import io.ktor.routing.*
 
 fun Route.likeParent(
-    likeService: LikeService
+    likeService: LikeService,
+    activityService: ActivityService
 ) {
     authenticate {
         post("/api/like/like") {
@@ -23,9 +26,14 @@ fun Route.likeParent(
                 call.respond(HttpStatusCode.BadRequest)
                 return@post
             }
-            println("likeParent:userId=${call.userId}")
-            val likeSuccessful = likeService.likeParent(call.userId, request.parentId)
+            val userId = call.userId
+            val likeSuccessful = likeService.likeParent(userId, request.parentId, request.parentType)
             if(likeSuccessful) {
+                activityService.addLikeActivity(
+                    byUserId = userId,
+                    parentType = ParentType.fromType(request.parentType),
+                    parentId = request.parentId
+                )
                 call.respond(
                     HttpStatusCode.OK,
                     BasicApiResponse(

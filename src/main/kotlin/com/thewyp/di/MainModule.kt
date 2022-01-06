@@ -1,5 +1,7 @@
 package com.thewyp.di
 
+import com.thewyp.data.repository.activity.ActivityRepository
+import com.thewyp.data.repository.activity.ActivityRepositoryImpl
 import com.thewyp.data.repository.comment.CommentRepository
 import com.thewyp.data.repository.comment.CommentRepositoryImpl
 import com.thewyp.data.repository.follow.FollowRepository
@@ -52,6 +54,12 @@ val mainModule = module {
     }
     single {
         CommentService(get())
+    }
+    single<ActivityRepository> {
+        ActivityRepositoryImpl(get())
+    }
+    single {
+        ActivityService(get(), get(), get())
     }
 
 }
