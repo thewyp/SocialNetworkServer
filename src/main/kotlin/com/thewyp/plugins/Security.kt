@@ -30,19 +30,22 @@ fun Application.configureSecurity() {
 }
 
 fun generateToken(
-    email: String,
+    userId: String,
     jwtIssuer: String,
     jwtAudience: String,
     jwtSecret: String,
 ): String {
     val expiresIn = 1000L * 60L * 60L * 24L * 365L
     return JWT.create()
-        .withClaim("email", email)
+        .withClaim("userId", userId)
         .withIssuer(jwtIssuer)
         .withExpiresAt(Date(System.currentTimeMillis() + expiresIn))
         .withAudience(jwtAudience)
         .sign(Algorithm.HMAC256(jwtSecret))
 }
 
-val JWTPrincipal.email: String?
-    get() = getClaim("email", String::class)
+val JWTPrincipal.userId: String?
+    get() = getClaim("userId", String::class)
+
+val ApplicationCall.userId: String
+    get() = principal<JWTPrincipal>()?.userId.toString()

@@ -27,10 +27,7 @@ class LikeRepositoryImpl(
         val doesUserExist = users.findOneById(userId) != null
         return if (doesUserExist) {
             likes.deleteOne(
-                and(
-                    Like::userId eq userId,
-                    Like::parentId eq parentId
-                )
+                Like::parentId eq parentId
             )
             true
         } else {

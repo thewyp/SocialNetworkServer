@@ -23,6 +23,10 @@ class CommentRepositoryImpl(
         return comments.find(Comment::postId eq postId).toList()
     }
 
+    override suspend fun deleteCommentsFromPost(postId: String): Boolean {
+        return comments.deleteMany(Comment::postId eq  postId).wasAcknowledged()
+    }
+
     override suspend fun getComment(commentId: String): Comment? {
         return comments.findOneById(commentId)
     }

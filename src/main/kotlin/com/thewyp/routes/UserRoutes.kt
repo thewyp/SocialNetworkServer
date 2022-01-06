@@ -67,12 +67,23 @@ fun Route.loginUser(
             call.respond(HttpStatusCode.BadRequest)
             return@post
         }
-
-        val isCorrectPassword = userService.doesPasswordMatchForUser(request)
+        println("LoginUser, email=$request")
+        val user = userService.getUserByEmail(request.email) ?: kotlin.run {
+            call.respond(
+                HttpStatusCode.OK,
+                BasicApiResponse(
+                    successful = false,
+                    message = INVALID_CREDENTIALS
+                )
+            )
+            return@post
+        }
+        println("loginUser, user=$user")
+        val isCorrectPassword = userService.isValidPassword(request.password, user.password)
         if(isCorrectPassword) {
             call.respond(
                 HttpStatusCode.OK,
-                AuthResponse(token = generateToken(request.email,jwtIssuer, jwtAudience, jwtSecret))
+                AuthResponse(token = generateToken(user.id,jwtIssuer, jwtAudience, jwtSecret))
             )
         } else {
             call.respond(
