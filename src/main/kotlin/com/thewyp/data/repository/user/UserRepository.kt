@@ -26,4 +26,6 @@ interface UserRepository {
 
     suspend fun searchForUsers(query: String): List<User>
 
+    suspend fun getUsers(userIds: List<String>): List<User>
+
 }

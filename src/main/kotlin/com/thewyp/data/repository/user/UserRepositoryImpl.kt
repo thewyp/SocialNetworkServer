@@ -2,6 +2,7 @@ package com.thewyp.data.repository.user
 
 import com.thewyp.data.models.User
 import com.thewyp.data.requests.UpdateProfileRequest
+import org.litote.kmongo.`in`
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.eq
 import org.litote.kmongo.or
@@ -64,5 +65,9 @@ class UserRepositoryImpl(
         )
             .descendingSort(User::followerCount)
             .toList()
+    }
+
+    override suspend fun getUsers(userIds: List<String>): List<User> {
+        return users.find(User::id `in` userIds).toList()
     }
 }

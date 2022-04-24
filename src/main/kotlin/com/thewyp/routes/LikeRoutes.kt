@@ -8,6 +8,7 @@ import com.thewyp.service.ActivityService
 import com.thewyp.service.LikeService
 import com.thewyp.service.UserService
 import com.thewyp.util.ApiResponseMessages
+import com.thewyp.util.QueryParams
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.*
@@ -80,6 +81,25 @@ fun Route.unlikeParent(
                     )
                 )
             }
+        }
+    }
+}
+
+fun Route.getLikesForParent(likeService: LikeService) {
+    authenticate {
+        get("/api/like/parent") {
+            val parentId = call.parameters[QueryParams.PARAM_PARENT_ID] ?: kotlin.run {
+                call.respond(HttpStatusCode.BadRequest)
+                return@get
+            }
+            val usersWhoLikedParent = likeService.getUsersWhoLikedParent(
+                parentId = parentId,
+                call.userId
+            )
+            call.respond(
+                HttpStatusCode.OK,
+                usersWhoLikedParent
+            )
         }
     }
 }
