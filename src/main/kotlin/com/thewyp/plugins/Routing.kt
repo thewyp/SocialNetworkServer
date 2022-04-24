@@ -3,6 +3,7 @@ package com.thewyp.plugins
 import com.thewyp.routes.*
 import com.thewyp.service.*
 import io.ktor.application.*
+import io.ktor.http.content.*
 import io.ktor.routing.*
 import org.koin.ktor.ext.inject
 
@@ -31,6 +32,9 @@ fun Application.configureRouting() {
         followUser(followService, activityService)
         unfollowUser(followService)
         searchUser(userService)
+        getUserProfile(userService)
+        getPostsForProfile(postService)
+        updateUserProfile(userService)
 
         // Post routes
         createPost(postService)
@@ -45,5 +49,9 @@ fun Application.configureRouting() {
         createComment(commentService, activityService)
         getCommentsForPost(commentService)
         deleteComment(commentService, likeService)
+
+        static {
+            resources("static")
+        }
     }
 }

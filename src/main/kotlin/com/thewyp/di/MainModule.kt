@@ -1,5 +1,6 @@
 package com.thewyp.di
 
+import com.google.gson.Gson
 import com.thewyp.data.repository.activity.ActivityRepository
 import com.thewyp.data.repository.activity.ActivityRepositoryImpl
 import com.thewyp.data.repository.comment.CommentRepository
@@ -61,5 +62,7 @@ val mainModule = module {
     single {
         ActivityService(get(), get(), get())
     }
+
+    single { Gson() }
 
 }

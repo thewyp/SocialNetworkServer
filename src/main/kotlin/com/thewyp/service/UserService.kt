@@ -5,6 +5,8 @@ import com.thewyp.data.repository.follow.FollowRepository
 import com.thewyp.data.repository.user.UserRepository
 import com.thewyp.data.requests.CreateAccountRequest
 import com.thewyp.data.requests.LoginRequest
+import com.thewyp.data.requests.UpdateProfileRequest
+import com.thewyp.data.responses.ProfileResponse
 import com.thewyp.data.responses.UserResponseItem
 
 class UserService(
@@ -17,6 +19,28 @@ class UserService(
 
     suspend fun doesEmailBelongToUserId(email: String, userId: String): Boolean {
         return userRepository.doesEmailBelongToUserId(email, userId)
+    }
+
+    suspend fun getUserProfile(userId: String, callerUserId: String): ProfileResponse? {
+        val user = userRepository.getUserById(userId) ?: return null
+        return ProfileResponse(
+            username = user.username,
+            bio = user.bio,
+            followerCount = user.followerCount,
+            followingCount = user.followingCount,
+            postCount = user.postCount,
+            profilePictureUrl = user.profileImageUrl,
+            topSkillUrls = user.skills,
+            gitHubUrl = user.gitHubUrl,
+            instagramUrl = user.instagramUrl,
+            linkedInUrl = user.linkedInUrl,
+            isOwnProfile = userId == callerUserId,
+            isFollowing = if (userId != callerUserId) {
+                followRepository.doesUserFollow(callerUserId, userId)
+            } else {
+                false
+            }
+        )
     }
 
     suspend fun doesPasswordMatchForUser(request: LoginRequest): Boolean {
@@ -54,6 +78,14 @@ class UserService(
             return ValidationEvent.ErrorFieldEmpty
         }
         return ValidationEvent.Success
+    }
+
+    suspend fun updateUser(
+        userId: String,
+        profileImageUrl: String,
+        updateProfileRequest: UpdateProfileRequest
+    ): Boolean {
+        return userRepository.updateUser(userId, profileImageUrl, updateProfileRequest)
     }
 
     suspend fun searchForUsers(query: String, userId: String): List<UserResponseItem> {
