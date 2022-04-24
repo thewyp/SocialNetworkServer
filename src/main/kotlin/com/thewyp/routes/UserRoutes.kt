@@ -19,6 +19,7 @@ import com.thewyp.util.Constants
 import com.thewyp.util.Constants.BASE_URL
 import com.thewyp.util.Constants.PROFILE_PICTURE_PATH
 import com.thewyp.util.QueryParams
+import com.thewyp.util.save
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.http.*
@@ -199,10 +200,7 @@ fun Route.updateUserProfile(userService: UserService) {
                         }
                     }
                     is PartData.FileItem -> {
-                        val fileBytes = partData.streamProvider().readBytes()
-                        val fileExtension = partData.originalFileName?.takeLastWhile { it != '.' }
-                        fileName = UUID.randomUUID().toString() + "." + fileExtension
-                        File("$PROFILE_PICTURE_PATH$fileName").writeBytes(fileBytes)
+                        fileName = partData.save(PROFILE_PICTURE_PATH)
                     }
                     is PartData.BinaryItem -> Unit
                 }

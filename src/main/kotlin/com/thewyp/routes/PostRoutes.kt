@@ -1,5 +1,6 @@
 package com.thewyp.routes
 
+import com.google.gson.Gson
 import com.thewyp.data.requests.CreatePostRequest
 import com.thewyp.data.requests.DeletePostRequest
 import com.thewyp.data.responses.BasicApiResponse
@@ -11,42 +12,65 @@ import com.thewyp.service.UserService
 import com.thewyp.util.ApiResponseMessages
 import com.thewyp.util.Constants
 import com.thewyp.util.QueryParams
+import com.thewyp.util.save
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.*
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import org.koin.ktor.ext.inject
+import java.io.File
 
 fun Route.createPost(
     postService: PostService
 ) {
+    val gson by inject<Gson>()
     authenticate {
         post("/api/post/create") {
-            val request = call.receiveOrNull<CreatePostRequest>() ?: kotlin.run {
+            val multipart = call.receiveMultipart()
+            var createPostRequest: CreatePostRequest? = null
+            var fileName: String? = null
+            multipart.forEachPart { partData ->
+                when (partData) {
+                    is PartData.FormItem -> {
+                        if (partData.name == "post_data") {
+                            createPostRequest = gson.fromJson(
+                                partData.value,
+                                CreatePostRequest::class.java
+                            )
+                        }
+                    }
+                    is PartData.FileItem -> {
+                        fileName = partData.save(Constants.POST_PICTURE_PATH)
+                    }
+                    is PartData.BinaryItem -> Unit
+                }
+            }
+            val postPictureUrl = "${Constants.BASE_URL}post_pictures/$fileName"
+            createPostRequest?.let { request ->
+                val createPostAcknowledged = postService.createPost(
+                    request = request,
+                    userId = call.userId,
+                    imageUrl = postPictureUrl
+                )
+
+                if (createPostAcknowledged) {
+                    call.respond(
+                        HttpStatusCode.OK,
+                        BasicApiResponse(
+                            successful = true
+                        )
+                    )
+                } else {
+                    File("${Constants.POST_PICTURE_PATH}/$fileName").delete()
+                    call.respond(HttpStatusCode.InternalServerError)
+                }
+            } ?: kotlin.run {
                 call.respond(HttpStatusCode.BadRequest)
                 return@post
-            }
-            println("createPost: userId=${call.userId}")
-            val userId2 = call.principal<JWTPrincipal>()?.getClaim("email", String::class)
-            println("likeParent:userId2=${userId2}")
-            val didUserExist = postService.createPostIfUserExists(request, call.userId)
-            if (!didUserExist) {
-                call.respond(
-                    HttpStatusCode.OK,
-                    BasicApiResponse(
-                        successful = false,
-                        message = ApiResponseMessages.USER_NOT_FOUND
-                    )
-                )
-            } else {
-                call.respond(
-                    HttpStatusCode.OK,
-                    BasicApiResponse(
-                        successful = true,
-                    )
-                )
             }
         }
     }
@@ -64,7 +88,8 @@ fun Route.getPostsForFollows(
             val posts = postService.getPostsByFollows(call.userId, page, pageSize)
             call.respond(
                 HttpStatusCode.OK,
-                posts)
+                posts
+            )
         }
     }
 }
@@ -81,7 +106,7 @@ fun Route.deletePost(
                 return@delete
             }
             val post = postService.getPost(request.postId)
-            if(post == null) {
+            if (post == null) {
                 call.respond(HttpStatusCode.NotFound)
                 return@delete
             }
